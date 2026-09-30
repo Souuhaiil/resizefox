@@ -30,6 +30,16 @@ export function WebSiteJsonLd() {
   );
 }
 
+export function FAQJsonLd({ questions }: { questions: { question: string; answer: string }[] }) {
+  return <JsonLd data={{
+    "@context": "https://schema.org", "@type": "FAQPage",
+    mainEntity: questions.map(({ question, answer }) => ({
+      "@type": "Question", name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer },
+    })),
+  }} />;
+}
+
 export function WebApplicationJsonLd({
   name,
   url,

@@ -1,0 +1,17 @@
+@import "tailwindcss" source(none);
+@source "./index.html";
+@layer base {
+  input[type="number"], select { display:block; width:100%; border:1px solid #94a3b8; border-radius:.5rem; padding:.6rem; margin-top:.4rem; background:white; }
+  input[type="file"] { max-width:100%; }
+  input[type="file"]::file-selector-button { padding:.6rem; background:white; border:1px solid #94a3b8; border-radius:.5rem; margin-right:.5rem; cursor:pointer; }
+  button, summary { cursor:pointer; }
+  :focus-visible { outline:3px solid #c2410c; outline-offset:4px; }
+  :disabled { opacity:.6; cursor:not-allowed; }
+  [hidden] { display:none !important; }
+  th, td { padding:.7rem; border-bottom:1px solid #cbd5e1; }
+  details { padding:1rem; background:white; border:1px solid #cbd5e1; border-radius:.75rem; }
+  summary { font-weight:600; }
+  details p { margin-top:.75rem; line-height:1.7; }
+}
+.ad-slot { min-height:280px; display:grid; place-items:center; color:#475569; font-size:.75rem; }
+.dragging { outline:3px solid #c2410c; }

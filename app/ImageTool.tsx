@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 type Mode = "resize" | "compress" | "convert";
 type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
@@ -21,12 +21,21 @@ export default function ImageTool({
   compressOnly = false,
   resizeOnly = false,
   convertOnly = false,
-  previewResult = false,
+  previewResult = true,
   acceptedTypes = "image/jpeg,image/png,image/webp",
   uploadHint = "JPG, PNG and WEBP supported",
   fixedFormat,
 }: ImageToolProps = {}) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const revision = useRef(0);
+  const urls = useRef({ preview: "", result: "" });
+  const [message, setMessage] = useState("");
+  const [resultDimensions, setResultDimensions] = useState({ width: 0, height: 0 });
+  useEffect(() => () => {
+    revision.current++;
+    URL.revokeObjectURL(urls.current.preview);
+    URL.revokeObjectURL(urls.current.result);
+  }, []);
 
   const [mode, setMode] = useState<Mode>(initialMode);
   const [file, setFile] = useState<File | null>(null);
@@ -48,31 +57,41 @@ export default function ImageTool({
   const [resultUrl, setResultUrl] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  function loadFile(selectedFile: File) {
+  async function loadFile(selectedFile: File) {
+    resetImage();
+    const current = revision.current;
     const allowedTypes = acceptedTypes.split(",").map((type) => type.trim());
-
-    if (!allowedTypes.includes(selectedFile.type)) return;
-
-    if (preview) URL.revokeObjectURL(preview);
-    if (resultUrl) URL.revokeObjectURL(resultUrl);
-
-    setResultBlob(null);
-    setResultUrl("");
-    setFile(selectedFile);
-
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setMessage("Choose a supported image format. HEIC requires conversion first.");
+      return;
+    }
+    if (selectedFile.size > 25 * 1024 * 1024) {
+      setMessage("Choose an image smaller than 25 MB.");
+      return;
+    }
+    setMessage("Reading image…");
     const url = URL.createObjectURL(selectedFile);
-    setPreview(url);
-
     const img = new Image();
-
-    img.onload = () => {
-      setWidth(img.width);
-      setHeight(img.height);
-      setOriginalWidth(img.width);
-      setOriginalHeight(img.height);
-    };
-
     img.src = url;
+    try {
+      await img.decode();
+      if (current !== revision.current) { URL.revokeObjectURL(url); return; }
+      if (img.naturalWidth * img.naturalHeight > 40_000_000) {
+        throw new Error("Choose an image no larger than 40 megapixels.");
+      }
+      urls.current.preview = url;
+      setPreview(url);
+      setFile(selectedFile);
+      setWidth(img.naturalWidth);
+      setHeight(img.naturalHeight);
+      setOriginalWidth(img.naturalWidth);
+      setOriginalHeight(img.naturalHeight);
+      setMessage("");
+    } catch (error) {
+      URL.revokeObjectURL(url);
+      if (current === revision.current) setMessage(error instanceof Error && error.message.includes("40 megapixels")
+        ? error.message : "This image could not be read. Choose another JPG, PNG or WebP file.");
+    }
   }
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
@@ -84,6 +103,10 @@ export default function ImageTool({
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
+    if (event.dataTransfer.files.length !== 1) {
+      setMessage("Drop one image at a time.");
+      return;
+    }
 
     const droppedFile = event.dataTransfer.files?.[0];
 
@@ -93,6 +116,7 @@ export default function ImageTool({
   }
 
   function changeWidth(newWidth: number) {
+    resetResult();
     if (newWidth < 1) {
       setWidth(0);
       return;
@@ -102,11 +126,12 @@ export default function ImageTool({
 
     if (keepRatio && originalWidth > 0) {
       const ratio = originalHeight / originalWidth;
-      setHeight(Math.round(newWidth * ratio));
+      setHeight(Math.max(1, Math.round(newWidth * ratio)));
     }
   }
 
   function changeHeight(newHeight: number) {
+    resetResult();
     if (newHeight < 1) {
       setHeight(0);
       return;
@@ -116,7 +141,7 @@ export default function ImageTool({
 
     if (keepRatio && originalHeight > 0) {
       const ratio = originalWidth / originalHeight;
-      setWidth(Math.round(newHeight * ratio));
+      setWidth(Math.max(1, Math.round(newHeight * ratio)));
     }
   }
 
@@ -138,156 +163,93 @@ export default function ImageTool({
     )} ${sizes[i]}`;
   }
 
-  function createCanvasImage(
-    callback: (canvas: HTMLCanvasElement) => void
-  ) {
-    if (!preview || width <= 0 || height <= 0) return;
-
-    const img = new Image();
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-
+  async function processImage() {
+    if (!file || !preview) return;
+    resetResult();
+    const current = revision.current;
+    if (![width, height].every(value => Number.isInteger(value) && value > 0 && value <= 8192)
+      || width * height > 24_000_000) {
+      setMessage("Use dimensions from 1 to 8192 pixels, up to 24 megapixels in total.");
+      return;
+    }
+    if (mode === "compress" && (!Number.isFinite(targetKB) || targetKB <= 0)) {
+      setMessage("Enter a positive target file size.");
+      return;
+    }
+    setProcessing(true);
+    const canvas = document.createElement("canvas");
+    let workingCanvas = canvas;
+    const encode = (value: number): Promise<Blob> => new Promise((resolve, reject) => {
+      workingCanvas.toBlob(blob => {
+        if (!blob || blob.type !== format) reject(new Error("This browser cannot export that format. Try JPG or PNG."));
+        else resolve(blob);
+      }, format, value);
+    });
+    try {
+      const image = new Image();
+      image.src = preview;
+      await image.decode();
+      if (current !== revision.current) return;
       canvas.width = width;
       canvas.height = height;
-
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) return;
-
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image processing is unavailable. Try a smaller image.");
       if (format === "image/jpeg") {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, width, height);
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, width, height);
       }
-
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-
-      ctx.drawImage(img, 0, 0, width, height);
-
-      callback(canvas);
-    };
-
-    img.src = preview;
-  }
-
-  function canvasToBlob(
-    canvas: HTMLCanvasElement,
-    qualityValue: number
-  ): Promise<Blob | null> {
-    return new Promise((resolve) => {
-      canvas.toBlob(
-        (blob) => resolve(blob),
-        format,
-        qualityValue
-      );
-    });
-  }
-
-  function saveResult(blob: Blob) {
-    if (resultUrl) {
-      URL.revokeObjectURL(resultUrl);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(image, 0, 0, width, height);
+      let blob = await encode(mode === "compress" ? 1 : quality / 100);
+      if (mode === "compress") {
+        const limit = targetKB * 1024;
+        if (format === "image/png") {
+          for (let attempt = 0; blob.size > limit && attempt < 12; attempt++) {
+            if (current !== revision.current) return;
+            const scale = Math.max(0.72, Math.sqrt(limit / blob.size) * 0.94);
+            const smaller = document.createElement("canvas");
+            smaller.width = Math.max(1, Math.round(workingCanvas.width * scale));
+            smaller.height = Math.max(1, Math.round(workingCanvas.height * scale));
+            const context = smaller.getContext("2d");
+            if (!context) throw new Error("Not enough memory. Try a smaller image.");
+            context.imageSmoothingEnabled = true;
+            context.imageSmoothingQuality = "high";
+            context.drawImage(workingCanvas, 0, 0, smaller.width, smaller.height);
+            workingCanvas.width = 0;
+            workingCanvas.height = 0;
+            workingCanvas = smaller;
+            blob = await encode(1);
+          }
+        } else if (blob.size > limit) {
+          let low = 0, high = 1;
+          let best = await encode(0);
+          for (let attempt = 0; attempt < 14; attempt++) {
+            if (current !== revision.current) return;
+            const midpoint = (low + high) / 2;
+            const candidate = await encode(midpoint);
+            if (candidate.size <= limit) { best = candidate; low = midpoint; }
+            else high = midpoint;
+          }
+          blob = best;
+        }
+      }
+      if (current !== revision.current) return;
+      const url = URL.createObjectURL(blob);
+      urls.current.result = url;
+      setResultBlob(blob);
+      setResultUrl(url);
+      setResultDimensions({ width: workingCanvas.width, height: workingCanvas.height });
+      setMessage("Your image is ready. Your original file is unchanged.");
+    } catch (error) {
+      if (current === revision.current) setMessage(error instanceof Error ? error.message : "Unable to process this image.");
+    } finally {
+      workingCanvas.width = 0;
+      workingCanvas.height = 0;
+      canvas.width = 0;
+      canvas.height = 0;
+      if (current === revision.current) setProcessing(false);
     }
-
-    const url = URL.createObjectURL(blob);
-
-    setResultBlob(blob);
-    setResultUrl(url);
-  }
-
-  async function processResize() {
-    if (!file) return;
-
-    setProcessing(true);
-
-    createCanvasImage(async (canvas) => {
-      const blob = await canvasToBlob(canvas, quality / 100);
-
-      if (blob) {
-        saveResult(blob);
-      }
-
-      setProcessing(false);
-    });
-  }
-
-  async function processCompress() {
-    if (!file || targetKB <= 0) return;
-
-    setProcessing(true);
-
-    createCanvasImage(async (canvas) => {
-      const targetBytes = targetKB * 1024;
-
-      if (format === "image/png") {
-        let workingCanvas = canvas;
-        let blob = await canvasToBlob(workingCanvas, 1);
-
-        for (let attempt = 0; blob && blob.size > targetBytes && attempt < 12; attempt++) {
-          const scale = Math.max(0.72, Math.sqrt(targetBytes / blob.size) * 0.94);
-          const smaller = document.createElement("canvas");
-          smaller.width = Math.max(1, Math.round(workingCanvas.width * scale));
-          smaller.height = Math.max(1, Math.round(workingCanvas.height * scale));
-          const smallerContext = smaller.getContext("2d");
-          if (!smallerContext) break;
-          smallerContext.imageSmoothingEnabled = true;
-          smallerContext.imageSmoothingQuality = "high";
-          smallerContext.drawImage(workingCanvas, 0, 0, smaller.width, smaller.height);
-          workingCanvas = smaller;
-          blob = await canvasToBlob(workingCanvas, 1);
-        }
-
-        if (blob) saveResult(blob);
-
-        setProcessing(false);
-        return;
-      }
-
-      let minQuality = 0.05;
-      let maxQuality = 1;
-      let bestBlob: Blob | null = null;
-
-      for (let i = 0; i < 14; i++) {
-        const currentQuality = (minQuality + maxQuality) / 2;
-
-        const blob = await canvasToBlob(canvas, currentQuality);
-
-        if (!blob) break;
-
-        if (blob.size <= targetBytes) {
-          bestBlob = blob;
-          minQuality = currentQuality;
-        } else {
-          maxQuality = currentQuality;
-        }
-      }
-
-      if (!bestBlob) {
-        bestBlob = await canvasToBlob(canvas, 0.05);
-      }
-
-      if (bestBlob) {
-        saveResult(bestBlob);
-      }
-
-      setProcessing(false);
-    });
-  }
-
-  async function processConvert() {
-    if (!file) return;
-
-    setProcessing(true);
-
-    createCanvasImage(async (canvas) => {
-      const blob = await canvasToBlob(canvas, quality / 100);
-
-      if (blob) {
-        saveResult(blob);
-      }
-
-      setProcessing(false);
-    });
   }
 
   function downloadResult() {
@@ -298,7 +260,7 @@ export default function ImageTool({
     link.href = resultUrl;
 
     if (mode === "resize") {
-      link.download = `resizefox-${width}x${height}.${getExtension()}`;
+      link.download = `resizefox-${resultDimensions.width}x${resultDimensions.height}.${getExtension()}`;
     } else if (mode === "compress") {
       link.download = `resizefox-compressed.${getExtension()}`;
     } else {
@@ -311,17 +273,19 @@ export default function ImageTool({
   }
 
   function resetResult() {
-    if (resultUrl) {
-      URL.revokeObjectURL(resultUrl);
-    }
-
+    revision.current++;
+    URL.revokeObjectURL(urls.current.result);
+    urls.current.result = "";
+    setProcessing(false);
+    setMessage("");
     setResultBlob(null);
     setResultUrl("");
   }
 
   function resetImage() {
-    if (preview) URL.revokeObjectURL(preview);
-    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resetResult();
+    URL.revokeObjectURL(urls.current.preview);
+    urls.current.preview = "";
 
     setFile(null);
     setPreview("");
@@ -354,6 +318,7 @@ export default function ImageTool({
 
   return (
 <section className="mx-auto max-w-6xl px-5 pb-16 sm:px-8">
+  <p role="status" aria-live="polite" className="mb-4 text-center text-sm text-slate-700">{message}</p>
   {!file ? (
     <div
       onDragOver={(event) => event.preventDefault()}
@@ -418,7 +383,7 @@ export default function ImageTool({
               src={previewResult && resultUrl ? resultUrl : preview}
               alt={
                 previewResult && resultUrl
-                  ? "Compressed image preview"
+                  ? "Processed image preview"
                   : "Image preview"
               }
               className="max-h-[420px] max-w-full rounded-xl object-contain"
@@ -462,6 +427,33 @@ export default function ImageTool({
 
           {(mode === "resize" || mode === "compress") && (
             <>
+              <div className="mt-6 flex flex-wrap gap-2" aria-label="Resize by percentage">
+                {[25, 50, 75, 100].map(percent => (
+                  <button key={percent} type="button" onClick={() => {
+                    resetResult();
+                    setWidth(Math.max(1, Math.round(originalWidth * percent / 100)));
+                    setHeight(Math.max(1, Math.round(originalHeight * percent / 100)));
+                  }} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-orange-50">
+                    {percent}%
+                  </button>
+                ))}
+              </div>
+              <label className="mt-5 block text-sm font-bold">
+                Dimension preset
+                <select value="" onChange={event => {
+                  if (!event.target.value) return;
+                  const [presetWidth, presetHeight] = event.target.value.split("x").map(Number);
+                  resetResult(); setKeepRatio(false); setWidth(presetWidth); setHeight(presetHeight);
+                }} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <option value="">Choose dimensions</option>
+                  <option value="1080x1080">Instagram square post · 1080 × 1080</option>
+                  <option value="1080x1920">Instagram story · 1080 × 1920</option>
+                  <option value="820x312">Facebook cover · 820 × 312</option>
+                  <option value="1584x396">LinkedIn header · 1584 × 396</option>
+                  <option value="413x531">35 × 45 mm photo at 300 dpi · 413 × 531</option>
+                </select>
+              </label>
+              <p className="mt-2 text-xs leading-5 text-slate-500">Presets set both dimensions and unlock the ratio. A different image shape will stretch; use the crop tool to change its shape first. Photo dimensions alone do not meet passport requirements.</p>
               <div className="mt-8 grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-bold">
@@ -470,9 +462,12 @@ export default function ImageTool({
 
                   <div className="relative mt-2">
                     <input
+                      aria-label="Width"
                       type="number"
                       value={width || ""}
                       min="1"
+                      max="8192"
+                      step="1"
                       onFocus={(e) => e.target.select()}
                       onChange={(e) =>
                         changeWidth(
@@ -497,9 +492,12 @@ export default function ImageTool({
 
                   <div className="relative mt-2">
                     <input
+                      aria-label="Height"
                       type="number"
                       value={height || ""}
                       min="1"
+                      max="8192"
+                      step="1"
                       onFocus={(e) => e.target.select()}
                       onChange={(e) =>
                         changeHeight(
@@ -522,9 +520,11 @@ export default function ImageTool({
                 <input
                   type="checkbox"
                   checked={keepRatio}
-                  onChange={(e) =>
-                    setKeepRatio(e.target.checked)
-                  }
+                  onChange={(e) => {
+                    resetResult(); setKeepRatio(e.target.checked);
+                    if (e.target.checked && originalWidth > 0 && width > 0)
+                      setHeight(Math.max(1, Math.round(width * originalHeight / originalWidth)));
+                  }}
                   className="h-4 w-4 accent-orange-500"
                 />
 
@@ -553,6 +553,7 @@ export default function ImageTool({
               </label>
 
               <select
+                aria-label="Output format"
                 value={format}
                 onChange={(e) => {
                   setFormat(e.target.value as OutputFormat);
@@ -583,13 +584,12 @@ export default function ImageTool({
                 </div>
 
                 <input
+                  aria-label="Quality"
                   type="range"
-                  min="10"
+                  min="0"
                   max="100"
                   value={quality}
-                  onChange={(e) =>
-                    setQuality(Number(e.target.value))
-                  }
+                  onChange={(e) => { resetResult(); setQuality(Number(e.target.value)); }}
                   className="mt-4 w-full accent-orange-500"
                 />
               </div>
@@ -628,6 +628,7 @@ export default function ImageTool({
                 </label>
 
                 <input
+                  aria-label="Custom size (KB)"
                   type="number"
                   value={targetKB || ""}
                   min="10"
@@ -647,8 +648,8 @@ export default function ImageTool({
 
               {format === "image/png" && (
                 <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                  PNG compression is limited. JPG or WEBP usually
-                  produces much smaller files.
+                  PNG ignores the quality setting. To reduce its file size,
+                  this tool may reduce pixel dimensions. Check the result dimensions before downloading.
                 </div>
               )}
             </div>
@@ -664,13 +665,7 @@ export default function ImageTool({
                 height <= 0 ||
                 (mode === "compress" && targetKB <= 0)
               }
-              onClick={
-                mode === "resize"
-                  ? processResize
-                  : mode === "compress"
-                  ? processCompress
-                  : processConvert
-              }
+              onClick={processImage}
               className="mt-8 w-full rounded-xl bg-orange-500 px-6 py-4 text-base font-extrabold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {processing
@@ -729,7 +724,7 @@ export default function ImageTool({
 
               {(mode === "resize" || mode === "compress") && (
                 <div className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-slate-700">
-                  Result dimensions: <strong>{width} × {height}px</strong>
+                  Result dimensions: <strong>{resultDimensions.width} × {resultDimensions.height}px</strong>
                 </div>
               )}
 

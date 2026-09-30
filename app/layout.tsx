@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { SiteFooter, SiteHeader } from "./SiteChrome";
 import "./globals.css";
 
@@ -68,28 +67,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7594630679770960"
-          crossOrigin="anonymous"
-        />
+        {/* Defaults and CMP callbacks must run before the AdSense loader. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="/google-consent.js" />
       </head>
       <body>
         <SiteHeader />
         {children}
         <SiteFooter />
-        <Script id="google-tag-init" strategy="afterInteractive">{`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){window.dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-64KRV3M9TN');
-          gtag('config', 'AW-17041135809');
-        `}</Script>
-        <Script
-          id="google-tag"
-          src="https://www.googletagmanager.com/gtag/js?id=G-64KRV3M9TN"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

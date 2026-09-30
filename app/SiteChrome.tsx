@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PrivacySettings from "./PrivacySettings";
 
 const navigation = [
   { href: "/tools", label: "Image Tools" },
@@ -58,6 +59,7 @@ export function SiteFooter() {
             Free browser-based tools for editing images and working with PDF
             documents without uploading them to our servers.
           </p>
+          <PrivacySettings />
         </div>
 
         <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-7 text-sm sm:grid-cols-3 xl:grid-cols-5">

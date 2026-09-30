@@ -2,7 +2,8 @@ import ImageSizeReference from "../ImageSizeReference";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ImageTool from "../ImageTool";
-import { WebApplicationJsonLd } from "../StructuredData";
+import { FAQJsonLd, WebApplicationJsonLd } from "../StructuredData";
+import AdPlaceholder from "../AdPlaceholder";
 
 export const metadata: Metadata = {
   title: "Resize Images Online by Pixels — Free Image Resizer",
@@ -54,6 +55,7 @@ const faqs = [
 export default function ResizeImagePage() {
   return (
     <main className="min-h-screen bg-[#fafafa] text-slate-950">
+      <FAQJsonLd questions={faqs} />
       <WebApplicationJsonLd
         name="ResizeFox Image Resizer"
         url="https://resizefox.com/resize-image"
@@ -73,6 +75,7 @@ export default function ResizeImagePage() {
       </section>
 
       <ImageTool initialMode="resize" resizeOnly previewResult />
+      <AdPlaceholder />
       <ImageSizeReference />
 
       <section className="border-y border-slate-200 bg-white">

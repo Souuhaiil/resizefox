@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-black">Privacy Policy</h1>
 
         <p className="mt-3 text-sm text-slate-500">
-          Last updated: September 22, 2026
+          Last updated: September 30, 2026
         </p>
 
         <div className="mt-10 space-y-8 leading-7 text-slate-600">
@@ -52,10 +52,16 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-3">
-              ResizeFox uses Google Analytics 4 (GA4), provided by Google, to
+              ResizeFox integrates Google Analytics 4 (GA4), provided by Google, to
               understand how people use the site and to help us improve the
               tools and user experience. Our GA4 Measurement ID is
               G-64KRV3M9TN.
+            </p>
+            <p className="mt-3">
+              Analytics and Google Ads measurement are initially blocked. They
+              load only when Google&apos;s consent platform reports the configured
+              purposes as granted or not applicable. If consent information is
+              unavailable or not configured, measurement stays blocked.
             </p>
 
             <p className="mt-3">
@@ -86,11 +92,13 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-3">
-              You can control or delete cookies through your browser settings.
-              Blocking some cookies or similar technologies may affect how
-              certain website features or analytics work. Where applicable,
-              you may also be offered consent controls that let you accept,
-              reject or adjust particular uses of cookies and data.
+              Google Privacy &amp; messaging manages the consent message where
+              configured and applicable. You can accept, reject or manage your
+              choices in that message. When the consent service is available,
+              use “Privacy and cookie settings” in the footer to reopen it and
+              change or withdraw your choice. You can also delete existing
+              cookies in your browser. File processing does not require consent
+              to advertising or analytics.
             </p>
           </section>
 
@@ -100,21 +108,21 @@ export default function PrivacyPage() {
             </h2>
 
             <p className="mt-3">
-              ResizeFox uses the Google Ads tag to measure visits associated
+              ResizeFox integrates the Google Ads tag to measure visits associated
               with our advertising campaigns. Google may process page URLs,
               advertising click identifiers, browser information and cookies
               for this measurement. Your image and PDF file contents are not
               included in this tracking.
             </p>
             <p className="mt-3">
-              ResizeFox does not currently display Google AdSense ads. If
-              Google AdSense is enabled in the future, Google and other
-              advertising partners may use cookies or similar technologies to
-              serve, personalize where permitted, and measure advertising.
-              Users may be offered controls for personalized advertising where
-              applicable. We will update this policy and provide any required
-              notices or consent controls before or when advertising is
-              introduced.
+              The AdSense integration loads Google code used for advertising
+              and its consent message. This involves a connection to Google,
+              even before Analytics or Google Ads measurement is enabled.
+              Advertising availability depends on the publisher account settings.
+              Google and its advertising partners may use cookies or similar
+              technologies to serve and measure ads, and to personalize them
+              where permitted by your choices. Your image and PDF contents are
+              not sent to these services by our file-processing tools.
             </p>
           </section>
 
