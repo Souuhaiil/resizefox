@@ -47,7 +47,6 @@ export default function Home() {
         </div>
       </section>
       <ImageTool />
-      <AdPlaceholder />
       <ImageSizeReference />
       <section id="image-tools" className="mx-auto max-w-5xl scroll-mt-6 px-5 pb-10 sm:px-8">
         <h2 className="text-center text-2xl font-black">Choose the tool for your task</h2>
@@ -305,6 +304,7 @@ export default function Home() {
   </div>
 </section>
 
+      <AdPlaceholder />
     </main>
   );
 }

@@ -75,7 +75,6 @@ export default function ResizeImagePage() {
       </section>
 
       <ImageTool initialMode="resize" resizeOnly previewResult />
-      <AdPlaceholder />
       <ImageSizeReference />
 
       <section className="border-y border-slate-200 bg-white">
@@ -250,6 +249,7 @@ export default function ResizeImagePage() {
         </div>
       </section>
       <section className="mx-auto max-w-4xl px-5 py-12"><h2 className="text-2xl font-bold">Compare detail before you choose a format</h2><p className="mt-4 leading-8">Changing dimensions removes pixels; changing compression alters their encoding. Test these separately with small text, colored edges and smooth gradients in our <Link className="font-bold text-orange-700 underline" href="/compression-lab">Image Compression Lab</Link>. Download the results and inspect them at normal viewing size before preparing your final image.</p></section>
+      <AdPlaceholder />
     </main>
   );
 }
