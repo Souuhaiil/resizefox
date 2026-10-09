@@ -60,6 +60,21 @@ export function SiteFooter() {
             documents without uploading them to our servers.
           </p>
           <PrivacySettings />
+          <a
+            href="https://sellwithboost.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 block w-fit"
+          >
+            {/* Keep the listing provider's original badge URL. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://sellwithboost.com/badge/listing.svg"
+              alt="Listed on Sell With Boost"
+              height={40}
+              style={{ height: "40px", width: "auto" }}
+            />
+          </a>
         </div>
 
         <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-7 text-sm sm:grid-cols-3 xl:grid-cols-5">
