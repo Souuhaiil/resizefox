@@ -15,6 +15,7 @@ export default function Lab() {
   const [error, setError] = useState("");
   const [dimensions, setDimensions] = useState("");
   const urls = useRef<string[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
   useEffect(() => () => urls.current.forEach(url => URL.revokeObjectURL(url)), []);
   function clear() { urls.current.forEach(url => URL.revokeObjectURL(url)); urls.current = []; setOutputs([]); setError(""); }
 
@@ -71,10 +72,19 @@ export default function Lab() {
 
   return <section aria-label="Interactive format comparison" className="my-10 rounded-3xl border border-orange-200 bg-white p-5 sm:p-8">
     <h2 className="text-2xl font-bold">Run your own comparison</h2>
-    <p className="mt-3 text-slate-600">Start with an original test pattern or choose your own image. Files stay in this browser.</p>
+    <p className="mt-3 text-slate-600">Choose an image to compare JPG, PNG and WebP, or try a sample. Your image stays private in this browser.</p>
     <fieldset disabled={busy} className="mt-6 grid gap-5 sm:grid-cols-2">
-      <label className="font-semibold">Test pattern<select value={sample} onChange={e => { clear(); setSample(e.target.value); setFile(null); }} className="mt-2 block w-full rounded-lg border p-3"><option value="text">Small text and colored lines</option><option value="gradient">Gradient and fine texture</option><option value="transparent">Transparent graphic</option></select></label>
-      <label className="font-semibold">Or choose an image<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => { clear(); setFile(e.target.files?.[0] ?? null); }} className="mt-2 block w-full text-sm"/><span className="mt-2 block text-sm font-normal">{file ? `Selected: ${file.name}` : "No upload required to use the samples."}</span></label>
+      <div className="min-w-0 rounded-2xl border-2 border-dashed border-orange-400 bg-orange-50 p-5">
+        <label htmlFor="lab-image" className="flex items-center gap-2 text-lg font-bold">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-6 w-6 shrink-0 text-orange-700"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m-4 4 4-4 4 4M4 16v4h16v-4" /></svg>
+          Upload your image
+        </label>
+        <p id="lab-image-help" className="mt-2 text-sm text-slate-700">Click Choose file below to select an image from your device.</p>
+        <input ref={fileInput} id="lab-image" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="lab-image-help lab-image-formats" onChange={e => { clear(); const selected = e.target.files?.[0]; if (selected) setFile(selected); }} className="mt-4 block w-full min-w-0 cursor-pointer rounded-lg text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-orange-700 file:px-5 file:py-3 file:font-bold file:text-white hover:file:bg-orange-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700" />
+        <p id="lab-image-formats" className="mt-3 text-sm text-slate-600">JPG, PNG or WebP · Up to 20 MB</p>
+        <p role="status" className="mt-2 break-words text-sm font-semibold text-slate-800">{file ? `Ready to compare: ${file.name}` : "No image selected — choose a file or use a sample."}</p>
+      </div>
+      <label className="min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold">Or try a sample<span className="mt-2 block text-sm font-normal text-slate-600">No image needed. Pick a test pattern to explore the results.</span><span className="mt-4 block text-sm">Test pattern</span><select aria-label="Test pattern" value={sample} onChange={e => { clear(); setSample(e.target.value); setFile(null); if (fileInput.current) fileInput.current.value = ""; }} className="mt-2 block w-full rounded-lg border bg-white p-3"><option value="text">Small text and colored lines</option><option value="gradient">Gradient and fine texture</option><option value="transparent">Transparent graphic</option></select>{file && <button type="button" onClick={() => { clear(); setFile(null); if (fileInput.current) fileInput.current.value = ""; }} className="mt-3 text-sm font-bold text-orange-800 underline">Use this sample instead</button>}</label>
       <label className="font-semibold">JPG / WebP quality: {quality}%<input type="range" min="10" max="100" value={quality} onChange={e => { clear(); setQuality(Number(e.target.value)); }} className="mt-3 block w-full accent-orange-500"/><span className="text-sm font-normal">PNG ignores this quality setting.</span></label>
       <label className="font-semibold">Output dimensions<select value={scale} onChange={e => { clear(); setScale(Number(e.target.value)); }} className="mt-2 block w-full rounded-lg border p-3"><option value={100}>100% — keep original dimensions</option><option value={75}>75% width and height</option><option value={50}>50% width and height</option><option value={25}>25% width and height</option></select></label>
       <button onClick={compare} className="rounded-xl bg-slate-950 px-5 py-3 font-bold text-white disabled:opacity-60">{busy ? "Comparing…" : "Compare formats"}</button>
