@@ -154,7 +154,16 @@ export default function PdfEditor() {
 
   return <section className="mx-auto max-w-7xl px-4 pb-14">
     <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
-      <label className="block font-bold">Choose PDF (up to 50 MB / 100 pages)<input aria-label="Choose PDF" className={input} type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e => { void open(e.target.files?.[0]); e.target.value = ''; }} /></label>
+      <div className="min-w-0 rounded-2xl border-2 border-dashed border-orange-400 bg-orange-50 p-5 sm:p-6">
+        <label htmlFor="editor-pdf-upload" className="flex items-center gap-2 text-lg font-bold">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-6 w-6 shrink-0 text-orange-700"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m-4 4 4-4 4 4M4 16v4h16v-4" /></svg>
+          Upload your PDF
+        </label>
+        <p id="editor-upload-help" className="mt-2 text-sm text-slate-700">Click Choose file below to open a PDF from your device and start editing.</p>
+        <input id="editor-pdf-upload" aria-label="Choose PDF" aria-describedby="editor-upload-help editor-upload-limits" className="mt-4 block w-full min-w-0 cursor-pointer rounded-lg text-sm text-slate-700 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-orange-700 file:px-5 file:py-3 file:font-bold file:text-white hover:file:bg-orange-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700 disabled:opacity-50" type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e => { void open(e.target.files?.[0]); }} onClick={e => { e.currentTarget.value = ''; }} />
+        <p id="editor-upload-limits" className="mt-3 text-sm text-slate-600">PDF files · Up to 50 MB / 100 pages · Files stay on your device</p>
+        {pdf && <p role="status" className="mt-2 break-words text-sm font-semibold text-slate-800">Opened: {name}</p>}
+      </div>
       <p className="mt-3 text-sm text-slate-600">Files stay on your device. Add content on top of a PDF; existing text cannot be rewritten. Highlights are not redaction. Drawn signatures are visual marks, not digital certificates.</p>
       {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-red-800">{error}</p>}
       {busy && <p role="status" className="mt-3">Processing your PDF…</p>}
