@@ -12,9 +12,6 @@ export const metadata: Metadata = {
 
   description:
     "Resize, compress and convert JPG, PNG and WebP images. Use our free PDF converter to create, merge, split, rotate and compress PDF files privately.",
-   alternates: {
-  canonical: "/",
-},
     verification: {
   google: "K5EcWw5UpwswHPyHgXkVzdUUTx7C-ulsY5rVIA3-Oy0",
 },
