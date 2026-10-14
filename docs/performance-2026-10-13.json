@@ -1,0 +1,50 @@
+[
+  {
+    "page": "20kb",
+    "date": "2026-10-13T22:58:18.172Z",
+    "lighthouse": "13.5.0",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "mode": "mobile",
+    "score": 0.99,
+    "LCP": 2191.1806,
+    "CLS": 0,
+    "TBT": 53.5,
+    "warnings": []
+  },
+  {
+    "page": "100kb",
+    "date": "2026-10-13T22:58:32.149Z",
+    "lighthouse": "13.5.0",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "mode": "mobile",
+    "score": 0.99,
+    "LCP": 2214.6716000000006,
+    "CLS": 0,
+    "TBT": 63,
+    "warnings": []
+  },
+  {
+    "page": "250kb",
+    "date": "2026-10-13T22:58:39.166Z",
+    "lighthouse": "13.5.0",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "mode": "mobile",
+    "score": 0.98,
+    "LCP": 2224.5815000000002,
+    "CLS": 0,
+    "TBT": 80,
+    "warnings": []
+  },
+  {
+    "page": "1mb",
+    "date": "2026-10-13T22:58:46.292Z",
+    "lighthouse": "13.5.0",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "mode": "mobile",
+    "score": 0.95,
+    "LCP": 2092.7244499999997,
+    "CLS": 0,
+    "TBT": 210.76760000000002,
+    "warnings": []
+  }
+]

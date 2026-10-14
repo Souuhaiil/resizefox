@@ -1,0 +1,112 @@
+[
+  {
+    "url": "https://resizefox.com/",
+    "status": 200,
+    "location": null,
+    "ms": 484,
+    "bytes": 160608,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com\"/>",
+    "robots": null,
+    "title": "Free Image Resizer &amp; PDF Tools | ResizeFox"
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-20kb",
+    "status": 200,
+    "location": null,
+    "ms": 131,
+    "bytes": 121324,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com/resize-image-to-20kb\"/>",
+    "robots": null,
+    "title": "Compress Image to 20KB Online Free | ResizeFox"
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-100kb",
+    "status": 200,
+    "location": null,
+    "ms": 132,
+    "bytes": 123557,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com/resize-image-to-100kb\"/>",
+    "robots": null,
+    "title": "Compress Image to 100KB for Application Photos | ResizeFox"
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-250kb",
+    "status": 200,
+    "location": null,
+    "ms": 126,
+    "bytes": 123582,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com/resize-image-to-250kb\"/>",
+    "robots": null,
+    "title": "Compress Image to 250KB for Clear Upload Attachments | ResizeFox"
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-1mb",
+    "status": 200,
+    "location": null,
+    "ms": 124,
+    "bytes": 121630,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com/resize-image-to-1mb\"/>",
+    "robots": null,
+    "title": "Compress Image Under 1MB Online Free | ResizeFox"
+  },
+  {
+    "url": "https://resizefox.com/robots.txt",
+    "status": 200,
+    "location": null,
+    "ms": 78,
+    "bytes": 67,
+    "robots": null
+  },
+  {
+    "url": "https://resizefox.com/sitemap.xml",
+    "status": 200,
+    "location": null,
+    "ms": 75,
+    "bytes": 7594,
+    "robots": null
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-20kb/",
+    "status": 307,
+    "location": "/resize-image-to-20kb",
+    "ms": 83,
+    "bytes": 0,
+    "robots": null
+  },
+  {
+    "url": "https://resizefox.com/resize-image-to-20kb.html",
+    "status": 307,
+    "location": "/resize-image-to-20kb",
+    "ms": 286,
+    "bytes": 0,
+    "robots": null
+  },
+  {
+    "url": "https://resizefox.com/nonexistent-seo-check",
+    "status": 404,
+    "location": null,
+    "ms": 138,
+    "bytes": 112205,
+    "robots": null,
+    "title": "ResizeFox - Free Image &amp; PDF Tools"
+  },
+  {
+    "url": "http://resizefox.com/resize-image-to-20kb",
+    "status": 200,
+    "location": null,
+    "ms": 199,
+    "bytes": 121324,
+    "canonical": "<link rel=\"canonical\" href=\"https://resizefox.com/resize-image-to-20kb\"/>",
+    "robots": null,
+    "title": "Compress Image to 20KB Online Free | ResizeFox"
+  },
+  {
+    "url": "https://www.resizefox.com/resize-image-to-20kb",
+    "status": 301,
+    "location": "https://resizefox.com/resize-image-to-20kb",
+    "ms": 260,
+    "bytes": 167,
+    "robots": null,
+    "title": "301 Moved Permanently"
+  }
+]
