@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import ImageSizeSeoPage from "../ImageSizeSeoPage";
 
 export const metadata: Metadata = {
-  title: "Compress Image to 100KB for Application Photos",
-  description: "Prepare a compact headshot or application attachment for a 100KB upload field. ResizeFox processes JPG, PNG and WebP files on your device; inspect the downloaded copy before submitting it.",
+  title: "Compress Image to 100KB for Photo Uploads",
+  description: "Prepare a photo for a 100KB upload field. Compress privately, then check exact bytes, dimensions and format before submitting your image.",
   alternates: { canonical: "/resize-image-to-100kb" },
 };
 
