@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import ImageSizeSeoPage from "../ImageSizeSeoPage";
 
 export const metadata: Metadata = {
-  title: "Compress Image to 250KB for Clear Upload Attachments",
-  description: "Reduce a photo or document image toward 250KB while retaining useful detail for an upload form. Processing stays in your browser, and you can review the result before downloading.",
+  title: "Compress Image to 250KB for Attachments",
+  description: "Compress a photo or document image toward 250KB. Check the exact file size, dimensions and readability before downloading your attachment.",
   alternates: { canonical: "/resize-image-to-250kb" },
 };
 

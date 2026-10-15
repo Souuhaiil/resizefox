@@ -15,6 +15,7 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
   const [resultUrl, setResultUrl] = useState("");
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [resultDimensions, setResultDimensions] = useState<{ width: number; height: number } | null>(null);
 
   function formatBytes(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
@@ -37,6 +38,7 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
 
     setError("");
     setResultBlob(null);
+    setResultDimensions(null);
     setResultUrl("");
     setFile(selectedFile);
 
@@ -68,6 +70,7 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
         if (file.size <= targetKB * 1024) {
           if (resultUrl) URL.revokeObjectURL(resultUrl);
           setResultBlob(file);
+          setResultDimensions({ width: img.naturalWidth, height: img.naturalHeight });
           setResultUrl(URL.createObjectURL(file));
           setProcessing(false);
           return;
@@ -147,6 +150,7 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
         const url = URL.createObjectURL(bestBlob);
 
         setResultBlob(bestBlob);
+        setResultDimensions({ width: Math.max(1, Math.round(currentWidth)), height: Math.max(1, Math.round(currentHeight)) });
         setResultUrl(url);
         setProcessing(false);
     } catch {
@@ -238,8 +242,8 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
 
             <p className="mt-3 leading-7 text-slate-600">
               Files already within the limit are kept unchanged. Otherwise,
-              ResizeFox will automatically adjust image quality and,
-              when needed, image dimensions to get the file under {targetLabel}.
+              ResizeFox tries different quality settings and,
+              when needed, smaller dimensions to reach {targetLabel}. Some images cannot reach this target.
             </p>
 
             {!resultBlob && (
@@ -263,6 +267,10 @@ export default function Image100KBTool({ targetKB = 100 }: ImageToolProps) {
                   alt="Result preview — inspect detail and background before downloading"
                   className="mt-4 max-h-64 w-full rounded-xl bg-white object-contain"
                 />
+                <p className="mt-3 text-sm text-slate-600">
+                  Exact size: {resultBlob.size.toLocaleString("en-US")} bytes / { (targetKB * 1024).toLocaleString("en-US") } byte limit.
+                  {resultDimensions && <> Dimensions: {resultDimensions.width} × {resultDimensions.height}px.</>}
+                </p>
                 <p className="mt-3 text-sm text-slate-600">
                   Output: {resultBlob.type === "image/png" ? "PNG" : resultBlob.type === "image/webp" ? "WebP" : "JPG"}.
                   Check text, faces and fine detail in this preview before downloading.

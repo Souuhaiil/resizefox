@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 import ImageSizeSeoPage from "../ImageSizeSeoPage";
 
 export const metadata: Metadata = {
-  title: "Compress Image Under 1MB Online Free",
-  description:
-    "Compress a large JPG, PNG or WebP image under 1MB while retaining more detail. Free browser-based tool for portals, sharing and storage.",
+  title: "Compress Image to 1MB for Large Photo Uploads",
+  description: "Reduce a large photo toward 1MB in your browser. Review exact bytes and dimensions, and check whether your portal uses a decimal 1MB limit.",
   alternates: { canonical: "/resize-image-to-1mb" },
 };
 
 export default function ResizeImageTo1MB() {
   return <ImageSizeSeoPage
-    badge="Private • High Detail • Free"
-    heading="Compress an Image Under 1MB"
-    intro="Bring a large photo below a common 1MB upload limit while preserving more resolution than smaller compression targets. Nothing needs to be installed or transferred to our servers."
+    badge="Private • Check Exact Bytes • Free"
+    heading="Compress an Image to 1MB"
+    intro="Reduce a large photo toward a 1MB target, then check the exported detail and dimensions. This page uses 1,048,576 bytes; a portal allowing only 1,000,000 bytes needs a smaller custom target. Nothing needs to be installed or transferred to our servers."
     path="/resize-image-to-1mb"
     targetKB={1024}
     sections={[
